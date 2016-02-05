@@ -12,17 +12,17 @@ To find out what fits others in a particular combination, fill this out.
 </p>
 <form method="post">
 <p>
-<select id="makers" name="maker_id">
-	<option disabled selected>Select Maker</option>
+<select id="makers" name="maker_id" required>
+	<option disabled selected value>Select Maker</option>
 </select>
-<select id="lasts" name="last_id">
-	<option disabled selected>Select Last</option>
+<select id="lasts" name="last_id" required>
+	<option disabled selected value>Select Last</option>
 </select>
-<select id="sizes" name="size_id">
-	<option disabled selected>Select Size</option>
+<select id="sizes" name="size_id" required>
+	<option disabled selected value>Select Size</option>
 </select>
-<select id="widths" name="width_id">
-	<option disabled selected>Select Width</option>
+<select id="widths" name="width_id" required>
+	<option disabled selected value>Select Width</option>
 </select>
 <input type="submit" value="Submit">
 </p>
@@ -47,8 +47,8 @@ for (var i = 0; i < makerList.length; i++) {
 makers.addEventListener('change', function() {populateLasts(this.value);});
 
 function populateLasts(makerID) {
-	while (lasts.options.length > 2) {
-		lasts.removeChild(lasts.options[2]);
+	while (lasts.options.length > 1) {
+		lasts.removeChild(lasts.options[1]);
 	}
 	lasts.options[0].selected = true;
 	for (var i = 0; i < lastList.length; i++) {
@@ -59,6 +59,11 @@ function populateLasts(makerID) {
 			lasts.appendChild(element);
 		}
 	}
+	if (lasts.options.length == 1) {
+		var element = document.createElement("option");
+		element.innerHTML = "None";
+		lasts.appendChild(element);
+	}
 }
 
 for (var i = 0; i < sizeList.length; i++) {
@@ -67,6 +72,10 @@ for (var i = 0; i < sizeList.length; i++) {
 	element.innerHTML = sizeList[i].size;
 	sizes.appendChild(element);
 }
+
+var element = document.createElement("option");
+element.innerHTML = "None";
+widths.appendChild(element);
 
 for (var i = 0; i < widthList.length; i++) {
 	var element = document.createElement("option");
