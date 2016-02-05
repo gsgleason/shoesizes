@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Makers</h1>
+<table>
+<tr><th>Maker</th></tr>
+{% for item in makers %}
+	<tr>
+		<td>{{ item.maker }}</td>
+	</tr>
+{% endfor %}
+</table>
+<form method="post">
+<p>
+Add Maker: <input type="text" name="maker" required>
+<input type="hidden" name="add" value="maker">
+<input type="submit" value="Submit">
+</p>
+</form>
+
+<h1>Lasts</h1>
+<table>
+<tr>
+	<th>Maker</th>
+	<th>Last</th>
+</tr>
+{% for last in lasts %}
+	<tr>
+		<td>{{ last.maker }}</td>
+		<td>{{ last.last }}</td>
+	</tr>
+{% endfor %}
+</table>
+<form method="post">
+<p>
+Add Last:
+<select name="maker_id" required>
+	<option selected disabled value>Select Maker</option>
+{% for item in makers %}
+	<option value="{{ item.id }}">{{ item.maker }}</option>
+{% endfor %}
+</select>
+<input type="text" name="last" required>
+<input type="hidden" name="add" value="last">
+<input type="submit" value="Submit">
+</p>
+</form>
+
+<h1>Sizes</h1>
+<table>
+<tr><th>Size</th></tr>
+{% for item in sizes %}
+	<tr>
+		<td>{{ item.size }}</td>
+	</tr>
+{% endfor %}
+</table>
+<form method="post">
+<p>
+Add Size: <input type="text" name="size" required>
+<input type="hidden" name="add" value="size">
+<input type="submit" value="Submit">
+</p>
+</form>
+
+<h1>Widths</h1>
+<table>
+<tr><th>Width</th></tr>
+{% for item in widths %}
+	<tr>
+		<td>{{ item.width }}</td>
+	</tr>
+{% endfor %}
+</table>
+<form method="post">
+<p>
+Add Width: <input type="text" name="width" required>
+<input type="hidden" name="add" value="width">
+<input type="submit" value="Submit">
+</p>
+</form>
+
+{% endblock body %}

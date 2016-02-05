@@ -1,0 +1,5 @@
+<ul>
+<li><a {% if request.path == url_for('index') %}class="active"{% endif %} href="/">Home</a></li>
+<li><a {% if request.path == url_for('submit') %}class="active"{% endif %} href="/submit">My Sizes</a></li>
+<li><a {% if request.path == url_for('admin') %}class="active"{% endif %} href="/admin">Maker/Last Admin</a></li>
+</ul>

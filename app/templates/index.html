@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Welcome welcome</h1>
+<p>
+This is a project to allow users to submit footwear that fits them very well, which will be used to make suggestions to others.
+</p>
+<p>
+Please start by visiting the <a href="/submit">submission page</a> to enter what fits you.  This will hopefully help others find well-fitting footwear. This site uses google authentication and will request access to your email address. This will be used for authentication and to keep track of your sizes.
+</p>
+<p>
+To find out what fits others in a particular combination, fill this out.
+</p>
+<form method="post">
+<p>
+<select id="makers" name="maker_id">
+	<option disabled selected>Select Maker</option>
+</select>
+<select id="lasts" name="last_id">
+	<option disabled selected>Select Last</option>
+</select>
+<select id="sizes" name="size_id">
+	<option disabled selected>Select Size</option>
+</select>
+<select id="widths" name="width_id">
+	<option disabled selected>Select Width</option>
+</select>
+<input type="submit" value="Submit">
+</p>
+</form>
+
+<script>
+var makerList = {{ makers|tojson }};
+var lastList = {{ lasts|tojson }};
+var sizeList = {{ sizes|tojson }};
+var widthList = {{ widths|tojson }};
+
+var makers = document.getElementById("makers");
+var lasts = document.getElementById("lasts");
+
+for (var i = 0; i < makerList.length; i++) {
+	var element = document.createElement("option");
+	element.value = makerList[i].id;
+	element.innerHTML = makerList[i].maker;
+	makers.appendChild(element);
+}
+
+makers.addEventListener('change', function() {populateLasts(this.value);});
+
+function populateLasts(makerID) {
+	while (lasts.options.length > 2) {
+		lasts.removeChild(lasts.options[2]);
+	}
+	lasts.options[0].selected = true;
+	for (var i = 0; i < lastList.length; i++) {
+		if (lastList[i].maker_id == makerID) {
+			var element = document.createElement("option");
+			element.value = lastList[i].id;
+			element.innerHTML = lastList[i].last;
+			lasts.appendChild(element);
+		}
+	}
+}
+
+for (var i = 0; i < sizeList.length; i++) {
+	var element = document.createElement("option");
+	element.value = sizeList[i].id;
+	element.innerHTML = sizeList[i].size;
+	sizes.appendChild(element);
+}
+
+for (var i = 0; i < widthList.length; i++) {
+	var element = document.createElement("option");
+	element.value = widthList[i].id;
+	element.innerHTML = widthList[i].width;
+	widths.appendChild(element);
+}
+
+</script>
+
+{% endblock body %}

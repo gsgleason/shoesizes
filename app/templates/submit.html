@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block body %}
+<p>
+Please list all your best fitting footwear.  The goal is to get a database of crowd-sourced sizing to help people find a starting point for a new boot/shoe.
+</p>
+<p>
+If a maker doesn't have variable widths (like Viberg), select None.  If a maker doesn't have published lasts, select None.
+</p>
+<p>
+Go ahead and start with Brannock as the maker (last=None) to set your Brannock measurement.
+</p>
+<form method="post">
+<p>
+Add New Entry: 
+<select id="makers" name="maker_id" required>
+	<option disabled selected value>Select Maker</option>
+</select>
+
+<select id="lasts" name="last_id" required>
+	<option disabled selected value>Select Last</option>
+	<option>None</option>
+</select>
+
+<select id="sizes" name="size_id" required>
+	<option disabled selected value>Select Size</option>
+</select>
+
+<select id="widths" name="width_id" required>
+	<option disabled selected value>Select Width</option>
+	<option>None</option>
+</select>
+
+<input type="hidden" name="action" value="add">
+<input type="submit" value="Submit">
+</p>
+</form>
+
+<table>
+<tr>
+	<th>Maker</th>
+	<th>Last</th>
+	<th>Size</th>
+	<th>Width</th>
+	<th></th>
+</tr>
+{% for item in userEntries %}
+<tr>
+	<td>{{ item.maker }}</td>
+	<td>{{ item.last }}</td>
+	<td>{{ item.size }}</td>
+	<td>{{ item.width }}</td>
+	<td>
+		<form method="post">
+		<input type="hidden" name="action" value="delete">
+		<input type="hidden" name="id" value="{{ item.id }}">
+		<input type="submit" value="Delete">
+		</form>
+	</td>
+</tr>
+{% endfor %}
+</table>
+
+<script>
+var makerList = {{ makers|tojson }};
+var lastList = {{ lasts|tojson }};
+var sizeList = {{ sizes|tojson }};
+var widthList = {{ widths|tojson }};
+
+var makers = document.getElementById("makers");
+var lasts = document.getElementById("lasts");
+var sizes = document.getElementById("sizes");
+
+for (var i = 0; i < makerList.length; i++) {
+	var element = document.createElement("option");
+	element.value = makerList[i].id;
+	element.innerHTML = makerList[i].maker;
+	makers.appendChild(element);
+}
+
+makers.addEventListener('change', function() {populateLasts(this.value);});
+
+function populateLasts(makerID) {
+	while (lasts.options.length > 2) {
+		lasts.removeChild(lasts.options[2]);
+	}
+	lasts.options[0].selected = true;
+	for (var i = 0; i < lastList.length; i++) {
+		if (lastList[i].maker_id == makerID) {
+			var element = document.createElement("option");
+			element.value = lastList[i].id;
+			element.innerHTML = lastList[i].last;
+			lasts.appendChild(element);
+		}
+	}
+}
+
+for (var i = 0; i < sizeList.length; i++) {
+	var element = document.createElement("option");
+	element.value = sizeList[i].id;
+	element.innerHTML = sizeList[i].size;
+	sizes.appendChild(element);
+}
+
+for (var i = 0; i < widthList.length; i++) {
+	var element = document.createElement("option");
+	element.value = widthList[i].id;
+	element.innerHTML = widthList[i].width;
+	widths.appendChild(element);
+}
+
+
+</script>
+
+{% endblock body %}

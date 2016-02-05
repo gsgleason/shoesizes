@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block body %}
+<p>
+People who wear {{ entry.maker }} {{ entry.last }} {{ entry.size }} {{ entry.width }} are also wearing:
+</p>
+<table>
+<tr>
+    <th>Maker</th>
+    <th>Last</th>
+    <th>Size</th>
+    <th>Width</th>
+</tr>
+{% for item in suggestions %}
+<tr>
+    <td>{{ item.maker }}</td>
+    <td>{{ item.last }}</td>
+    <td>{{ item.size }}</td>
+    <td>{{ item.width }}</td>
+</tr>
+{% endfor %}
+</table>
+<p><a href="/">Start Over</a></p>
+{% endblock body %}
