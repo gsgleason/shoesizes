@@ -211,7 +211,7 @@ def ssl_required(fn):
 def auth_required(f):
 	@wraps(f)
 	def decorated(*args, **kwargs):
-		if 'emailhash' in session:
+		if 'emailhash' in session and 'email' in session:
 			return f(*args, **kwargs)
 		if 'credentials' not in session:
 			return redirect(url_for('oauth2callback', next=request.path))
