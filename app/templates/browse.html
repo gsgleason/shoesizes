@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block body %}
+{% for uid, list in entries.iteritems() %}
+	<table>
+	<tr>
+		<th>Maker</th>
+		<th>Last</th>
+		<th>Size</th>
+		<th>Width</th>
+	</tr>
+	{% for item in list %}
+		<tr>
+			<td>{{ item.maker }}</td>
+			<td>{{ item.last }}</td>
+			<td>{{ item.size }}</td>
+			<td>{{ item.width }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+{% endfor %}
+{% endblock body %}
