@@ -176,6 +176,27 @@ class shoeDB(object):
 			results.append(entry)
 		return results
 
+	def getAllEntries(self):
+		results = {}
+		self.c.execute('SELECT maker,last,size,width,users.id FROM entries '
+			'INNER JOIN users ON entries.user_id=users.id '
+			'LEFT JOIN makers ON entries.maker_id=makers.id '
+			'LEFT JOIN lasts ON entries.last_id=lasts.id '
+			'LEFT JOIN sizes ON entries.size_id=sizes.id '
+			'LEFT JOIN widths ON entries.width_id=widths.id '
+			'ORDER BY users.id,maker,last,size,width')
+		for row in self.c.fetchall():
+			entry = {}
+			entry['maker'] = row[0]
+			entry['last'] = row[1]
+			entry['size'] = row[2]
+			entry['width'] = row[3]
+			uid = row[4]
+			if uid not in results:
+				results[uid] = []
+			results[uid].append(entry)
+		return results
+
 	def deleteEntry(self,user_id,entry_id):
 		self.c.execute('DELETE FROM entries WHERE user_id=? AND id=?',(user_id,entry_id,))
 		self.conn.commit()
@@ -347,5 +368,12 @@ def submit():
 	widthList = db.listWidths()
 	userEntries = db.getUserEntries(user_id)
 	return render_template('submit.html', makers=makerList,lasts=lastList,sizes=sizeList,widths=widthList,userEntries=userEntries)
+
+@app.route('/browse')
+def browse():
+	db = shoeDB()
+	entries = db.getAllEntries()
+	return render_template('browse.html', entries=entries)
+	
 
 

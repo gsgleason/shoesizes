@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block body %}
 <p>
-Please list all your best fitting footwear.  The goal is to get a database of crowd-sourced sizing to help people find a starting point for a new boot/shoe.
+Please list only your <strong>best fitting</strong> footwear.  The goal is to get a database of crowd-sourced sizing to help people find a starting point for a new boot/shoe.
 </p>
 <p>
 If a maker doesn't have variable widths (like Viberg), select None.  If a maker doesn't have published lasts, select None.
@@ -11,6 +11,10 @@ Go ahead and start with Brannock as the maker (last=None) to set your Brannock m
 </p>
 <p>
 If you don't see the maker/size/last/width listed, please add it at the <a href="{{ url_for('admin') }}">Maker/Last Admin</a> page.
+</p>
+<p>
+Please put in submissions in the maker's native sizing.</p>
+</p>
 <form method="post">
 <p>
 Add New Entry: 
