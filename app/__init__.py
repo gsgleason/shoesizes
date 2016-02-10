@@ -1,4 +1,4 @@
-from flask import Flask,request,render_template,redirect,session,url_for
+from flask import Flask,request,render_template,redirect,session,url_for,flash
 from flask.ext.session import Session
 import sqlite3
 import os
@@ -29,6 +29,25 @@ def before_request():
 		pass
 	elif not request.is_secure:
 		return redirect(request.url.replace("http://", "https://"))
+
+def listCount(l):
+	counts = []
+	newList = []
+	for position,value in enumerate(l):
+		count = 0
+		if value not in newList:
+			newList.append(value)
+			counts.append(1)
+		else:
+			for p,v in enumerate(newList):
+				if value == v:
+					counts[p] += 1
+	
+	for p,v in enumerate(counts):
+		newList[p]['count'] = v
+	
+	return sorted(newList, reverse=True)
+
 
 class logDB(object):
 	def __init__(self):
@@ -122,6 +141,9 @@ class shoeDB(object):
 		return True
 
 	def addEntry(self,user_id,maker_id,last_id,size_id,width_id):
+		self.c.execute('SELECT * FROM entries WHERE user_id=? AND maker_id=? AND last_id=?',(user_id,maker_id,last_id,))
+		if len(self.c.fetchall()) > 0:
+			return False
 		self.c.execute('INSERT INTO entries (user_id,maker_id,last_id,size_id,width_id) VALUES (?,?,?,?,?)',(user_id,maker_id,last_id,size_id,width_id,))
 		self.conn.commit()
 	
@@ -176,7 +198,7 @@ class shoeDB(object):
 			entry['size'] = row[2]
 			entry['width'] = row[3]
 			results.append(entry)
-		return results
+		return listCount(results)
 
 	def getMaker(self,maker_id):
 		self.c.execute('SELECT maker FROM makers WHERE id=?',(maker_id,))
@@ -197,16 +219,6 @@ class shoeDB(object):
 		self.c.execute('SELECT width FROM widths WHERE id=?',(width_id,))
 		try: return self.c.fetchone()[0]
 		except: return None
-			
-
-def ssl_required(fn):
-	@wraps(fn)
-	def decorated_view(*args, **kwargs):
-		if request.is_secure:
-			return fn(*args, **kwargs)
-		else:
-			return redirect(request.url.replace("http://", "https://"))
-	return decorated_view
 
 def auth_required(f):
 	@wraps(f)
@@ -232,7 +244,6 @@ def auth_required(f):
 	return decorated
 
 @app.route('/oauth2callback')
-@ssl_required
 def oauth2callback():
 	data_dir = os.environ.get('OPENSHIFT_DATA_DIR')
 	flow = client.flow_from_clientsecrets(data_dir + '/client_secrets.json',scope='email',redirect_uri=url_for('oauth2callback', _external=True))
@@ -260,9 +271,17 @@ def index():
 		return render_template('index.html', makers=makerList,lasts=lastList,sizes=sizeList,widths=widthList)
 	if request.method == "POST":
 		maker_id = request.form.get('maker_id')
+		if maker_id == "None":
+			maker_id = None
 		last_id = request.form.get('last_id')
+		if last_id == "None":
+			last_id = None
 		size_id = request.form.get('size_id')
+		if size_id == "None":
+			size_id = None
 		width_id = request.form.get('width_id')
+		if width_id == "None":
+			width_id = None
 		entry = {'maker':db.getMaker(maker_id),'last':db.getLast(last_id),'size':db.getSize(size_id),'width':db.getWidth(width_id)}
 		suggestions = db.suggest(maker_id,last_id,size_id,width_id)
 		return render_template('suggest.html', entry=entry, suggestions=suggestions)
@@ -294,13 +313,6 @@ def admin():
 	lastList = db.listLasts()
 	sizeList = db.listSizes()
 	widthList = db.listWidths()
-	'''
-	lasts = {}
-	for item in lastList:
-		if item['maker'] not in lasts:
-			lasts[item['maker']] = []
-		lasts[item['maker']].append(item['last'])
-	'''
 	return render_template('admin.html', makers=makerList,lasts=lastList,sizes=sizeList,widths=widthList)
 
 #self,emailhash,maker_id,last_id,size_id,width_id
@@ -324,7 +336,8 @@ def submit():
 			width_id = request.form.get('width_id')
 			if width_id == "None":
 				width_id = None
-			db.addEntry(user_id,maker_id,last_id,size_id,width_id)
+			if db.addEntry(user_id,maker_id,last_id,size_id,width_id) == False:
+				flash("You may not have two entries with the same maker/last combination")
 		if request.form.get('action') == 'delete':
 			entry_id = request.form.get('id')
 			db.deleteEntry(user_id,entry_id)
@@ -334,4 +347,5 @@ def submit():
 	widthList = db.listWidths()
 	userEntries = db.getUserEntries(user_id)
 	return render_template('submit.html', makers=makerList,lasts=lastList,sizes=sizeList,widths=widthList,userEntries=userEntries)
+
 

@@ -9,6 +9,7 @@ People who wear {{ entry.maker }} {{ entry.last }} {{ entry.size }} {{ entry.wid
     <th>Last</th>
     <th>Size</th>
     <th>Width</th>
+    <th>Count</th>
 </tr>
 {% for item in suggestions %}
 <tr>
@@ -16,6 +17,7 @@ People who wear {{ entry.maker }} {{ entry.last }} {{ entry.size }} {{ entry.wid
     <td>{{ item.last }}</td>
     <td>{{ item.size }}</td>
     <td>{{ item.width }}</td>
+    <td>{{ item.count }}</td>
 </tr>
 {% endfor %}
 </table>
