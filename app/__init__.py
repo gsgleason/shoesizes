@@ -54,11 +54,11 @@ class logDB(object):
 		data_dir = os.environ.get('OPENSHIFT_DATA_DIR')
 		self.conn = sqlite3.connect(data_dir + '/admin.db')
 		self.c = self.conn.cursor()
-		self.c.execute('CREATE TABLE IF NOT EXISTS admin(email TEXT, date TEXT DEFAULT CURRENT_TIMESTAMP, item TEXT, value TEXT)')
+		self.c.execute('CREATE TABLE IF NOT EXISTS admin(user_id INTEGER, date TEXT DEFAULT CURRENT_TIMESTAMP, item TEXT, value TEXT)')
 		self.conn.commit()
 
-	def entry(self,email,item,value):
-		self.c.execute('INSERT INTO admin (email,item,value) VALUES (?,?,?)',(email,item,value,))
+	def entry(self,user_id,item,value):
+		self.c.execute('INSERT INTO admin (user_id,item,value) VALUES (?,?,?)',(user_id,item,value,))
 		self.conn.commit()
 
 class shoeDB(object):
@@ -244,7 +244,7 @@ class shoeDB(object):
 def auth_required(f):
 	@wraps(f)
 	def decorated(*args, **kwargs):
-		if 'emailhash' in session and 'email' in session:
+		if 'emailhash' in session:
 			return f(*args, **kwargs)
 		if 'credentials' not in session:
 			return redirect(url_for('oauth2callback', next=request.path))
@@ -260,7 +260,6 @@ def auth_required(f):
 		except:
 			return redirect(url_for('oauth2callback', next=request.path))
 		session['emailhash'] = hashlib.sha1(response['email']).hexdigest()
-		session['email'] = response['email']
 		return f(*args, **kwargs)
 	return decorated
 
@@ -311,32 +310,31 @@ def index():
 @auth_required
 def admin():
 	db = shoeDB()
+	user_id = db.getUserID(session.get('emailhash'))
 	l = logDB()
 	if request.method == "POST":
 		if request.form.get('add') == 'maker':
 			maker = request.form.get('maker').strip()
 			db.addMaker(maker)
-			l.entry(session['email'],'maker',maker)
+			l.entry(user_id,'maker',maker)
 		if request.form.get('add') == 'last':
 			maker_id = request.form.get('maker_id').strip()
 			last = request.form.get('last')
 			db.addLast(maker_id,last)
-			l.entry(session['email'],'last',last)
+			l.entry(user_id,'last',last)
 		if request.form.get('add') == 'size':
 			size = request.form.get('size').strip()
 			db.addSize(size)
-			l.entry(session['email'],'size',size)
+			l.entry(user_id,'size',size)
 		if request.form.get('add') == 'width':
 			width = request.form.get('width').strip()
 			db.addWidth(width)
-			l.entry(session['email'],'width',width)
+			l.entry(user_id,'width',width)
 	makerList = db.listMakers()
 	lastList = db.listLasts()
 	sizeList = db.listSizes()
 	widthList = db.listWidths()
 	return render_template('admin.html', makers=makerList,lasts=lastList,sizes=sizeList,widths=widthList)
-
-#self,emailhash,maker_id,last_id,size_id,width_id
 
 @app.route('/submit', methods = ['GET','POST'])
 @auth_required
