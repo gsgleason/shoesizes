@@ -8,22 +8,52 @@ This is a project to allow users to submit footwear that fits them very well, wh
 Please start by visiting the <a href="/submit">submission page</a> to enter what fits you.  This will hopefully help others find well-fitting footwear. This site uses google authentication and will request access to your email address. This will be used for authentication and to keep track of your sizes.
 </p>
 <p>
-To find out what fits others in a particular combination, fill this out.
+To find out what fits others in a specific combination, fill this out.
 </p>
 <form method="post">
 <p>
-<select id="makers" name="maker_id" required>
+<select name="maker_id" required>
 	<option disabled selected value>Select Maker</option>
+	{% for item in makers %}
+	<option value="{{ item.id }}">{{ item.maker }}</option>
+	{% endfor %}
 </select>
-<select id="lasts" name="last_id" required>
+<select name="last_id" required>
 	<option disabled selected value>Select Last</option>
 </select>
-<select id="sizes" name="size_id" required>
+<select name="size_id" required>
 	<option disabled selected value>Select Size</option>
+	{% for item in sizes %}
+	<option value="{{ item.id }}">{{ item.size }}</option>
+	{% endfor %}
 </select>
-<select id="widths" name="width_id" required>
+<select name="width_id" required>
 	<option disabled selected value>Select Width</option>
+	{% for item in widths %}
+	<option value="{{ item.id }}">{{ item.width }}</option>
+	{% endfor %}
 </select>
+<input type="hidden" name="action" value="suggest">
+<input type="submit" value="Submit">
+</p>
+</form>
+
+
+<p>
+To find out what else people wear who enjoy a particular last, enter maker and last here.
+</p>
+<form method="post">
+<p>
+<select name="maker_id" required>
+	<option disabled selected value>Select Maker</option>
+	{% for item in makers %}
+	<option value="{{ item.id }}">{{ item.maker }}</option>
+	{% endfor %}
+</select>
+<select name="last_id" required>
+	<option disabled selected value>Select Last</option>
+</select>
+<input type="hidden" name="action" value="lastSuggest">
 <input type="submit" value="Submit">
 </p>
 </form>
@@ -34,19 +64,14 @@ var lastList = {{ lasts|tojson }};
 var sizeList = {{ sizes|tojson }};
 var widthList = {{ widths|tojson }};
 
-var makers = document.getElementById("makers");
-var lasts = document.getElementById("lasts");
-
-for (var i = 0; i < makerList.length; i++) {
-	var element = document.createElement("option");
-	element.value = makerList[i].id;
-	element.innerHTML = makerList[i].maker;
-	makers.appendChild(element);
+makers = document.querySelectorAll('select[name="maker_id"]')
+for (var i = 0; i < makers.length; i++) {
+	makers[i].addEventListener('change', function() {populateLasts(this);});
 }
 
-makers.addEventListener('change', function() {populateLasts(this.value);});
-
-function populateLasts(makerID) {
+function populateLasts(elem) {
+	var makerID = elem.value;
+	var lasts = elem.form.last_id;
 	while (lasts.options.length > 1) {
 		lasts.removeChild(lasts.options[1]);
 	}
@@ -64,24 +89,6 @@ function populateLasts(makerID) {
 		element.innerHTML = "None";
 		lasts.appendChild(element);
 	}
-}
-
-for (var i = 0; i < sizeList.length; i++) {
-	var element = document.createElement("option");
-	element.value = sizeList[i].id;
-	element.innerHTML = sizeList[i].size;
-	sizes.appendChild(element);
-}
-
-var element = document.createElement("option");
-element.innerHTML = "None";
-widths.appendChild(element);
-
-for (var i = 0; i < widthList.length; i++) {
-	var element = document.createElement("option");
-	element.value = widthList[i].id;
-	element.innerHTML = widthList[i].width;
-	widths.appendChild(element);
 }
 
 </script>

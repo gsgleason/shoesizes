@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block body %}
+
+<p>
+People who wear {{ entry.maker }} {{ entry.last }} are also wearing:
+</p>
+
+{% for uid, list in suggestions.iteritems() %}
+	<table>
+	<tr>
+		<th>Maker</th>
+		<th>Last</th>
+		<th>Size</th>
+		<th>Width</th>
+	</tr>
+	{% for item in list %}
+		<tr{% if item.maker == entry.maker and item.last == entry.last %} style="color: black;background-color:#fafad2"{% endif %}>
+			<td>{{ item.maker }}</td>
+			<td>{{ item.last }}</td>
+			<td>{{ item.size }}</td>
+			<td>{{ item.width }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+{% endfor %}
+<p><a href="/">Start Over</a></p>
+{% endblock body %}
