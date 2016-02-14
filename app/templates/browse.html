@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% block body %}
+<p>
+Showing {{ entrycount }} submissions from {{ usercount }} users.
+</p>
 {% for uid, list in entries.iteritems() %}
 	<table>
 	<tr>

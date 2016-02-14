@@ -197,6 +197,13 @@ class shoeDB(object):
 			results[uid].append(entry)
 		return results
 
+	def entryCount(self):
+		self.c.execute('SELECT COUNT(id) FROM entries')
+		entries = self.c.fetchone()[0]
+		self.c.execute('SELECT COUNT(DISTINCT user_id) FROM entries')
+		users = self.c.fetchone()[0]
+		return (entries,users,)
+
 	def deleteEntry(self,user_id,entry_id):
 		self.c.execute('DELETE FROM entries WHERE user_id=? AND id=?',(user_id,entry_id,))
 		self.conn.commit()
@@ -399,8 +406,9 @@ def submit():
 @app.route('/browse')
 def browse():
 	db = shoeDB()
+	entrycount, usercount = db.entryCount()
 	entries = db.getAllEntries()
-	return render_template('browse.html', entries=entries)
+	return render_template('browse.html', entries=entries,entrycount=entrycount,usercount=usercount)
 	
 
 
